@@ -1,10 +1,22 @@
 package com.company;
 
+import javafx.scene.shape.Line;
+
 import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.geom.Line2D;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static java.awt.event.KeyEvent.*;
 
 public class MainScreen extends Applet implements KeyListener {
 
@@ -15,6 +27,8 @@ public class MainScreen extends Applet implements KeyListener {
     private Rectangle target;
     private Label score;
     private int scoreValue = 0;
+    private int snakeDirection = VK_RIGHT;
+    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
     @Override
     public void init() {
@@ -26,10 +40,11 @@ public class MainScreen extends Applet implements KeyListener {
         requestFocusInWindow();
 
         snake = new Rectangle(0, 30, 10, 10);
-        score = new Label("Start moving the keys");
+        score = new Label("Start moving the keys", Label.CENTER);
         add(score);
 
         putTargetInRandomPlace();
+        executorService.scheduleAtFixedRate(gameStepInitiator, 0, 100, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -39,38 +54,28 @@ public class MainScreen extends Applet implements KeyListener {
         graphics2D.setColor(Color.BLACK);
         graphics2D.fill(snake);
         graphics2D.fill(target);
+        graphics2D.drawLine(0, 30, 500, 30);
 
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_UP) {
-            snake.y -= 10;
-            repaint();
-            evaluateCurrentSituation();
+        int key = e.getKeyCode();
+        if (key != VK_UP && key != VK_DOWN && key != VK_LEFT && key != VK_RIGHT) {
             return;
         }
-        if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-            snake.y += 10;
-            repaint();
-            evaluateCurrentSituation();
-            return;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-            snake.x -= 10;
-            repaint();
-            evaluateCurrentSituation();
-            return;
-        }
-        if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            snake.x += 10;
-            repaint();
-            evaluateCurrentSituation();
-            return;
-        }
+        snakeDirection = key;
+
     }
 
     private void evaluateCurrentSituation() {
+        if (snake.x < 0 || snake.x > 490 || snake.y < 30 || snake.y > 490) {
+            score.setText("GAME OVER");
+            executorService.shutdown();
+            removeKeyListener(this);
+            return;
+        }
+
         if (snake.x != target.x || snake.y != target.y) {
             return;
         }
@@ -104,6 +109,32 @@ public class MainScreen extends Applet implements KeyListener {
         target.y = targetY;
         repaint();
     }
+
+    private void moveSnake() {
+        if (snakeDirection == VK_UP) {
+            snake.y -= 10;
+            return;
+        }
+        if (snakeDirection == VK_DOWN) {
+            snake.y += 10;
+            return;
+        }
+        if (snakeDirection == VK_LEFT) {
+            snake.x -= 10;
+            return;
+        }
+        if (snakeDirection == VK_RIGHT) {
+            snake.x += 10;
+            return;
+        }
+    }
+
+    private Runnable gameStepInitiator = () -> {
+        Timber.e("Check");
+        moveSnake();
+        evaluateCurrentSituation();
+        repaint();
+    };
 
     @Override
     public void keyReleased(KeyEvent e) {
