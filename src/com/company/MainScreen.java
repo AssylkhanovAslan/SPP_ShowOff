@@ -8,10 +8,13 @@ import java.util.Random;
 
 public class MainScreen extends Applet implements KeyListener {
 
+    private static final String SCORE_FORMAT = "Score: %d";
+
     private Rectangle rect;
     private Rectangle snake;
     private Rectangle target;
     private Label score;
+    private int scoreValue = 0;
 
     @Override
     public void init() {
@@ -38,36 +41,49 @@ public class MainScreen extends Applet implements KeyListener {
         graphics2D.fill(target);
 
     }
+
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_UP) {
-            score.setText("UP");
-            Timber.e("UP");
             snake.y -= 10;
             repaint();
+            evaluateCurrentSituation();
             return;
         }
         if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-            score.setText("DOWN");
-            Timber.e("DOWN");
             snake.y += 10;
             repaint();
+            evaluateCurrentSituation();
             return;
         }
         if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-            score.setText("VK_LEFT");
-            Timber.e("LEFT");
             snake.x -= 10;
             repaint();
+            evaluateCurrentSituation();
             return;
         }
         if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            score.setText("VK_RIGHT");
-            Timber.e("RIGHT");
             snake.x += 10;
             repaint();
+            evaluateCurrentSituation();
             return;
         }
+    }
+
+    private void evaluateCurrentSituation() {
+        if (snake.x != target.x || snake.y != target.y) {
+            return;
+        }
+
+        scoreValue++;
+        updateScore();
+        putTargetInRandomPlace();
+        repaint();
+    }
+
+    private void updateScore() {
+        String scoreText = String.format(SCORE_FORMAT, scoreValue);
+        score.setText(scoreText);
     }
 
     private void putTargetInRandomPlace() {
