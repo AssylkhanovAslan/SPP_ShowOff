@@ -15,7 +15,7 @@ public class MainScreen extends Applet implements KeyListener {
     public void init() {
         super.init();
         addKeyListener(this);
-        rect = new Rectangle(0, 0, 500, 500);
+        setSize(500, 500);
         box = new Rectangle(10, 10, 10, 10);
         setFocusable(true);
         requestFocusInWindow();
@@ -27,8 +27,7 @@ public class MainScreen extends Applet implements KeyListener {
     public void paint(Graphics g) {
         setSize(500, 500);
         Graphics2D graphics2D = (Graphics2D) g;
-        graphics2D.fill(rect);
-        graphics2D.setColor(Color.getColor("#F2F"));
+        graphics2D.setColor(Color.BLACK);
         graphics2D.fill(box);
 
     }
@@ -44,21 +43,29 @@ public class MainScreen extends Applet implements KeyListener {
         if (e.getKeyCode() == KeyEvent.VK_UP) {
             score.setText("UP");
             Timber.e("UP");
+            box.y -= 10;
+            repaint();
             return;
         }
         if (e.getKeyCode() == KeyEvent.VK_DOWN) {
             score.setText("DOWN");
             Timber.e("DOWN");
+            box.y += 10;
+            repaint();
             return;
         }
         if (e.getKeyCode() == KeyEvent.VK_LEFT) {
             score.setText("VK_LEFT");
-            Timber.e("VK_LEFT");
+            Timber.e("LEFT");
+            box.x -= 10;
+            repaint();
             return;
         }
         if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
             score.setText("VK_RIGHT");
-            Timber.e("VK_RIGHT");
+            Timber.e("RIGHT");
+            box.x += 10;
+            repaint();
             return;
         }
     }
