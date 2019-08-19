@@ -4,7 +4,6 @@ import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +15,7 @@ public class MainScreen extends Applet implements KeyListener {
     private static final String SCORE_FORMAT = "Score: %d";
 
     private Snake snake;
-    private Rectangle target;
+    private Target target;
     private Label score;
     private int scoreValue = 0;
     private ScheduledExecutorService executorService;
@@ -29,13 +28,13 @@ public class MainScreen extends Applet implements KeyListener {
         setName("Snake");
         setFocusable(true);
         requestFocusInWindow();
-
+        target = new Target();
         snake = new Snake();
         score = new Label("Start moving the keys", Label.CENTER);
         add(score);
 
 
-        putTargetInRandomPlace();
+        target.putTargetInRandomPlace(snake);
         executorService = Executors.newScheduledThreadPool(1);
         executorService.scheduleAtFixedRate(gameStepInitiator, 0, 100, TimeUnit.MILLISECONDS);
     }
@@ -66,13 +65,6 @@ public class MainScreen extends Applet implements KeyListener {
 
     private void evaluateCurrentSituation() {
         Rectangle snakeHead = snake.getHead();
-//        if (snakeHead.x < 0 || snakeHead.x > 490 || snakeHead.y < 30 || snakeHead.y > 490) {
-//            score.setText("GAME OVER");
-//            executorService.shutdown();
-//            removeKeyListener(this);
-//            return;
-//        }
-
         for (Rectangle tailItem : snake.getTail()) {
             if (tailItem.intersects(snakeHead)) {
                 score.setText("GAME OVER");
@@ -84,44 +76,13 @@ public class MainScreen extends Applet implements KeyListener {
         if (snake.eatsTarget(target)) {
             scoreValue++;
             updateScore();
-            putTargetInRandomPlace();
+            target.putTargetInRandomPlace(snake);
         }
     }
 
     private void updateScore() {
         String scoreText = String.format(SCORE_FORMAT, scoreValue);
         score.setText(scoreText);
-    }
-
-    private void putTargetInRandomPlace() {
-        int targetX = snake.getHead().x;
-        int targetY = snake.getHead().y;
-        if (target == null) {
-            target = new Rectangle(targetX, targetY, 10, 10);
-        }
-        boolean shoulSearchForPlace = true;
-        while (shoulSearchForPlace) {
-            targetX = new Random().nextInt(46) + 3;
-            targetY = new Random().nextInt(46) + 3;
-            targetX *= 10;
-            targetY *= 10;
-            target.x = targetX;
-            target.y = targetY;
-            if (target.intersects(snake.getHead())) {
-                continue;
-            }
-            boolean intersects = false;
-            for (Rectangle tailItem : snake.getTail()) {
-                if (target.intersects(tailItem)) {
-                    intersects = true;
-                    break;
-                }
-            }
-            shoulSearchForPlace = intersects;
-        }
-        target.x = targetX;
-        target.y = targetY;
-        repaint();
     }
 
     private Runnable gameStepInitiator = () -> {

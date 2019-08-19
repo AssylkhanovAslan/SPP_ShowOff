@@ -11,7 +11,6 @@ public class Snake {
     private Rectangle head;
     private List<Rectangle> tail;
     private int direction = VK_RIGHT;
-    private int size = 0;
 
     public Snake() {
         head = new Rectangle(10, 30, 10, 10);
@@ -103,6 +102,5 @@ public class Snake {
             head.y = 30;
             return;
         }
-
     }
 }
