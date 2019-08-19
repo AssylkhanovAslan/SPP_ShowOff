@@ -96,14 +96,28 @@ public class MainScreen extends Applet implements KeyListener {
     private void putTargetInRandomPlace() {
         int targetX = snake.getHead().x;
         int targetY = snake.getHead().y;
-        while (targetX == snake.getHead().x && targetY == snake.getHead().y) {
+        if (target == null) {
+            target = new Rectangle(targetX, targetY, 10, 10);
+        }
+        boolean shoulSearchForPlace = true;
+        while (shoulSearchForPlace) {
             targetX = new Random().nextInt(46) + 3;
             targetY = new Random().nextInt(46) + 3;
             targetX *= 10;
             targetY *= 10;
-        }
-        if (target == null) {
-            target = new Rectangle(targetX, targetY, 10, 10);
+            target.x = targetX;
+            target.y = targetY;
+            if (target.intersects(snake.getHead())) {
+                continue;
+            }
+            boolean intersects = false;
+            for (Rectangle tailItem : snake.getTail()) {
+                if (target.intersects(tailItem)) {
+                    intersects = true;
+                    break;
+                }
+            }
+            shoulSearchForPlace = intersects;
         }
         target.x = targetX;
         target.y = targetY;
