@@ -1,20 +1,13 @@
 package com.company;
 
-import javafx.scene.shape.Line;
-
 import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.geom.Line2D;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static java.awt.event.KeyEvent.*;
 
@@ -22,13 +15,11 @@ public class MainScreen extends Applet implements KeyListener {
 
     private static final String SCORE_FORMAT = "Score: %d";
 
-    private Rectangle rect;
-    private Rectangle snake;
+    private Snake snake;
     private Rectangle target;
     private Label score;
     private int scoreValue = 0;
-    private int snakeDirection = VK_RIGHT;
-    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private ScheduledExecutorService executorService;
 
     @Override
     public void init() {
@@ -39,23 +30,29 @@ public class MainScreen extends Applet implements KeyListener {
         setFocusable(true);
         requestFocusInWindow();
 
-        snake = new Rectangle(0, 30, 10, 10);
+        snake = new Snake();
         score = new Label("Start moving the keys", Label.CENTER);
         add(score);
 
+
         putTargetInRandomPlace();
+        executorService = Executors.newScheduledThreadPool(1);
         executorService.scheduleAtFixedRate(gameStepInitiator, 0, 100, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void paint(Graphics g) {
-        setSize(500, 500);
         Graphics2D graphics2D = (Graphics2D) g;
         graphics2D.setColor(Color.BLACK);
-        graphics2D.fill(snake);
-        graphics2D.fill(target);
         graphics2D.drawLine(0, 30, 500, 30);
+        graphics2D.fill(snake.getHead());
+        for (Rectangle item : snake.getTail()) {
+            graphics2D.fill(item);
+        }
 
+
+        graphics2D.setColor(Color.RED);
+        graphics2D.fill(target);
     }
 
     @Override
@@ -64,37 +61,22 @@ public class MainScreen extends Applet implements KeyListener {
         if (key != VK_UP && key != VK_DOWN && key != VK_LEFT && key != VK_RIGHT) {
             return;
         }
-        if (key == VK_UP && snakeDirection == VK_DOWN) {
-            return;
-        }
-        if (key == VK_DOWN && snakeDirection == VK_UP) {
-            return;
-        }
-        if (key == VK_LEFT && snakeDirection == VK_RIGHT) {
-            return;
-        }
-        if (key == VK_RIGHT && snakeDirection == VK_LEFT) {
-            return;
-        }
-        snakeDirection = key;
-
+        snake.setDirection(key);
     }
 
     private void evaluateCurrentSituation() {
-        if (snake.x < 0 || snake.x > 490 || snake.y < 30 || snake.y > 490) {
+        if (snake.getHead().x < 0 || snake.getHead().x > 490 || snake.getHead().y < 30 || snake.getHead().y > 490) {
             score.setText("GAME OVER");
             executorService.shutdown();
             removeKeyListener(this);
             return;
         }
 
-        if (snake.x != target.x || snake.y != target.y) {
-            return;
+        if (snake.eatsTarget(target)) {
+            scoreValue++;
+            updateScore();
+            putTargetInRandomPlace();
         }
-
-        scoreValue++;
-        updateScore();
-        putTargetInRandomPlace();
     }
 
     private void updateScore() {
@@ -103,9 +85,9 @@ public class MainScreen extends Applet implements KeyListener {
     }
 
     private void putTargetInRandomPlace() {
-        int targetX = snake.x;
-        int targetY = snake.y;
-        while (targetX == snake.x && targetY == snake.y) {
+        int targetX = snake.getHead().x;
+        int targetY = snake.getHead().y;
+        while (targetX == snake.getHead().x && targetY == snake.getHead().y) {
             targetX = new Random().nextInt(46) + 3;
             targetY = new Random().nextInt(46) + 3;
             targetX *= 10;
@@ -121,27 +103,8 @@ public class MainScreen extends Applet implements KeyListener {
         repaint();
     }
 
-    private void moveSnake() {
-        if (snakeDirection == VK_UP) {
-            snake.y -= 10;
-            return;
-        }
-        if (snakeDirection == VK_DOWN) {
-            snake.y += 10;
-            return;
-        }
-        if (snakeDirection == VK_LEFT) {
-            snake.x -= 10;
-            return;
-        }
-        if (snakeDirection == VK_RIGHT) {
-            snake.x += 10;
-            return;
-        }
-    }
-
     private Runnable gameStepInitiator = () -> {
-        moveSnake();
+        snake.moveSnake();
         evaluateCurrentSituation();
         repaint();
     };
