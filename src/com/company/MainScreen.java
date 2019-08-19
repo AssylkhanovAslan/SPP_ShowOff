@@ -66,12 +66,12 @@ public class MainScreen extends Applet implements KeyListener {
 
     private void evaluateCurrentSituation() {
         Rectangle snakeHead = snake.getHead();
-        if (snakeHead.x < 0 || snakeHead.x > 490 || snakeHead.y < 30 || snakeHead.y > 490) {
-            score.setText("GAME OVER");
-            executorService.shutdown();
-            removeKeyListener(this);
-            return;
-        }
+//        if (snakeHead.x < 0 || snakeHead.x > 490 || snakeHead.y < 30 || snakeHead.y > 490) {
+//            score.setText("GAME OVER");
+//            executorService.shutdown();
+//            removeKeyListener(this);
+//            return;
+//        }
 
         for (Rectangle tailItem : snake.getTail()) {
             if (tailItem.intersects(snakeHead)) {

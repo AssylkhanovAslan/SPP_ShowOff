@@ -34,18 +34,22 @@ public class Snake {
 
         if (direction == VK_UP) {
             head.y -= 10;
+            teleportHeadIfNeeded();
             return;
         }
         if (direction == VK_DOWN) {
             head.y += 10;
+            teleportHeadIfNeeded();
             return;
         }
         if (direction == VK_LEFT) {
             head.x -= 10;
+            teleportHeadIfNeeded();
             return;
         }
         if (direction == VK_RIGHT) {
             head.x += 10;
+            teleportHeadIfNeeded();
             return;
         }
     }
@@ -80,5 +84,25 @@ public class Snake {
             return;
         }
         direction = directionKey;
+    }
+
+    public void teleportHeadIfNeeded() {
+        if (head.x < 0) {
+            head.x = 490;
+            return;
+        }
+        if (head.x > 490) {
+            head.x = 0;
+            return;
+        }
+        if (head.y < 30) {
+            head.y = 490;
+            return;
+        }
+        if (head.y > 490) {
+            head.y = 30;
+            return;
+        }
+
     }
 }
