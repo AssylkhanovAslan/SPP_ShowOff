@@ -65,11 +65,20 @@ public class MainScreen extends Applet implements KeyListener {
     }
 
     private void evaluateCurrentSituation() {
-        if (snake.getHead().x < 0 || snake.getHead().x > 490 || snake.getHead().y < 30 || snake.getHead().y > 490) {
+        Rectangle snakeHead = snake.getHead();
+        if (snakeHead.x < 0 || snakeHead.x > 490 || snakeHead.y < 30 || snakeHead.y > 490) {
             score.setText("GAME OVER");
             executorService.shutdown();
             removeKeyListener(this);
             return;
+        }
+
+        for (Rectangle tailItem : snake.getTail()) {
+            if (tailItem.intersects(snakeHead)) {
+                score.setText("GAME OVER");
+                executorService.shutdown();
+                removeKeyListener(this);
+            }
         }
 
         if (snake.eatsTarget(target)) {
@@ -92,8 +101,6 @@ public class MainScreen extends Applet implements KeyListener {
             targetY = new Random().nextInt(46) + 3;
             targetX *= 10;
             targetY *= 10;
-            System.out.println(targetX);
-            System.out.println(targetY);
         }
         if (target == null) {
             target = new Rectangle(targetX, targetY, 10, 10);

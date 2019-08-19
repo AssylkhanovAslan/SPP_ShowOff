@@ -20,22 +20,18 @@ public class Snake {
     }
 
     public void moveSnake() {
-
-        try {
-            for (int i = 0; i < tail.size(); i++) {
-                Rectangle tailElem = tail.get(i);
-                if (i == tail.size() - 1) {
-                    tailElem.x = head.x;
-                    tailElem.y = head.y;
-                } else {
-                    Rectangle tailElemInFront = tail.get(i + 1);
-                    tailElem.x = tailElemInFront.x;
-                    tailElem.y = tailElemInFront.y;
-                }
+        for (int i = 0; i < tail.size(); i++) {
+            Rectangle tailElem = tail.get(i);
+            if (i == tail.size() - 1) {
+                tailElem.x = head.x;
+                tailElem.y = head.y;
+            } else {
+                Rectangle tailElemInFront = tail.get(i + 1);
+                tailElem.x = tailElemInFront.x;
+                tailElem.y = tailElemInFront.y;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+
         if (direction == VK_UP) {
             head.y -= 10;
             return;
@@ -55,12 +51,10 @@ public class Snake {
     }
 
     public Boolean eatsTarget(Rectangle target) {
-        if (head.x != target.x || head.y != target.y) {
+        if (!head.intersects(target)) {
             return false;
         }
-        size++;
         tail.add(new Rectangle(head.x, head.y, 10, 10));
-        Timber.e("Tail size = " + tail.size());
         return true;
     }
 
