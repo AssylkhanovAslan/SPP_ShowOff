@@ -64,6 +64,18 @@ public class MainScreen extends Applet implements KeyListener {
         if (key != VK_UP && key != VK_DOWN && key != VK_LEFT && key != VK_RIGHT) {
             return;
         }
+        if (key == VK_UP && snakeDirection == VK_DOWN) {
+            return;
+        }
+        if (key == VK_DOWN && snakeDirection == VK_UP) {
+            return;
+        }
+        if (key == VK_LEFT && snakeDirection == VK_RIGHT) {
+            return;
+        }
+        if (key == VK_RIGHT && snakeDirection == VK_LEFT) {
+            return;
+        }
         snakeDirection = key;
 
     }
@@ -83,7 +95,6 @@ public class MainScreen extends Applet implements KeyListener {
         scoreValue++;
         updateScore();
         putTargetInRandomPlace();
-        repaint();
     }
 
     private void updateScore() {
@@ -130,7 +141,6 @@ public class MainScreen extends Applet implements KeyListener {
     }
 
     private Runnable gameStepInitiator = () -> {
-        Timber.e("Check");
         moveSnake();
         evaluateCurrentSituation();
         repaint();
