@@ -26,6 +26,7 @@ public class MainScreen extends Applet implements KeyListener {
         addKeyListener(this);
         setSize(500, 500);
         setName("Snake");
+        System.out.println("Snake");
         setFocusable(true);
         requestFocusInWindow();
         target = new Target();
@@ -41,6 +42,7 @@ public class MainScreen extends Applet implements KeyListener {
 
     @Override
     public void paint(Graphics g) {
+        System.out.println("Paint");
         Graphics2D graphics2D = (Graphics2D) g;
         graphics2D.setColor(Color.BLACK);
         graphics2D.drawLine(0, 30, 500, 30);
